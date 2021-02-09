@@ -43,18 +43,67 @@ class Config:
         return self.conf.getboolean("common", "auto_exit")
     def transalte_to_sc(self) -> bool:
         return self.conf.getboolean("common", "transalte_to_sc")
+    def is_transalte(self) -> bool:
+        return self.conf.getboolean("transalte", "switch")
+    def is_trailer(self) -> bool:
+        return self.conf.getboolean("trailer", "switch")
 
+    def is_watermark(self) -> bool:
+        return self.conf.getboolean("watermark", "switch")
+
+    def is_extrafanart(self) -> bool:
+        return self.conf.getboolean("extrafanart", "switch")   
+    
+    def watermark_type(self) -> int:
+        return int(self.conf.get("watermark", "water"))
+
+    def get_uncensored(self):
+        try:
+            sec = "uncensored"
+            uncensored_prefix = self.conf.get(sec, "uncensored_prefix")
+            # uncensored_poster = self.conf.get(sec, "uncensored_poster")
+            return uncensored_prefix
+
+        except ValueError:
+            self._exit("uncensored")
+
+    def get_extrafanart(self):
+        try:
+            extrafanart_download = self.conf.get("extrafanart", "extrafanart_folder")
+            return extrafanart_download
+        except ValueError:
+            self._exit("extrafanart_folder")
+    def get_transalte_engine(self) -> str:
+        return self.conf.get("transalte","engine")
+    # def get_transalte_appId(self) ->str:
+    #     return self.conf.get("transalte","appid")
+    def get_transalte_key(self) -> str:
+        return self.conf.get("transalte","key")
+    def get_transalte_delay(self) -> int:
+        return self.conf.getint("transalte","delay")
+    def transalte_values(self) -> str:
+        return self.conf.get("transalte", "values")
     def proxy(self) -> [str, int, int, str]:
         try:
             sec = "proxy"
+            switch = self.conf.get(sec, "switch")
             proxy = self.conf.get(sec, "proxy")
             timeout = self.conf.getint(sec, "timeout")
             retry = self.conf.getint(sec, "retry")
             proxytype = self.conf.get(sec, "type")
-            return proxy, timeout, retry, proxytype
+            return switch, proxy, timeout, retry, proxytype
         except ValueError:
             self._exit("common")
 
+    def cacert_file(self) -> str:
+        return self.conf.get('proxy', 'cacert_file')
+            
+    def media_type(self) -> str:
+        return self.conf.get('media', 'media_type')
+
+    def sub_rule(self):
+        return self.conf.get('media', 'sub_type').split(',')
+            
     def naming_rule(self) -> str:
         return self.conf.get("Name_Rule", "naming_rule")
 
@@ -114,6 +163,8 @@ class Config:
         conf.set(sec2, "timeout", "5")
         conf.set(sec2, "retry", "3")
         conf.set(sec2, "type", "socks5")
+        conf.set(sec2, "cacert_file", "")
+
 
         sec3 = "Name_Rule"
         conf.add_section(sec3)
@@ -127,7 +178,7 @@ class Config:
 
         sec5 = "priority"
         conf.add_section(sec5)
-        conf.set(sec5, "website", "javbus,javdb,fanza,xcity,mgstage,fc2,avsox,jav321,xcity")
+        conf.set(sec5, "website", "airav,javbus,javdb,fanza,xcity,mgstage,fc2,avsox,jav321,xcity")
 
         sec6 = "escape"
         conf.add_section(sec6)
@@ -137,6 +188,38 @@ class Config:
         sec7 = "debug_mode"
         conf.add_section(sec7)
         conf.set(sec7, "switch", "0")
+
+        sec8 = "transalte"
+        conf.add_section(sec8)
+        conf.set(sec8, "switch", "0")
+        conf.set(sec8, "engine", "google-free")
+        # conf.set(sec8, "appid", "")
+        conf.set(sec8, "key", "")
+        conf.set(sec8, "delay", "1")
+        conf.set(sec8, "values", "title,outline")
+        
+        sec9 = "trailer"
+        conf.add_section(sec9)
+        conf.set(sec9, "switch", "0")
+
+        sec10 = "uncensored"
+        conf.add_section(sec10)
+        conf.set(sec10, "uncensored_prefix", "S2M,BT,LAF,SMD")
+
+        sec11 = "media"
+        conf.add_section(sec11)
+        conf.set(sec11, "media_type", ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,.MP4,.AVI,.RMVB,.WMV,.MOV,.MKV,.FLV,.TS,.WEBM,iso,ISO")
+        conf.set(sec11, "sub_type", ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.txt,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
+
+        sec12 = "watermark"
+        conf.add_section(sec12)
+        conf.set(sec12, "switch", 1)
+        conf.set(sec12, "water", 2)
+
+        sec13 = "extrafanart"
+        conf.add_section(sec13)
+        conf.set(sec13, "switch", 1)
+        conf.set(sec13, "extrafanart_folder", "extrafanart")
 
         return conf
 
@@ -157,3 +240,9 @@ if __name__ == "__main__":
     print(config.escape_literals())
     print(config.escape_folder())
     print(config.debug())
+    print(config.is_transalte())
+    print(config.get_transalte_engine())
+    # print(config.get_transalte_appId())
+    print(config.get_transalte_key())
+    print(config.get_transalte_delay())
+    print(config.transalte_values())
